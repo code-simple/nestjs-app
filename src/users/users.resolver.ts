@@ -1,35 +1,70 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { UsersService } from './providers/users.service';
+import { Args, Int, Query, Resolver } from '@nestjs/graphql';
 import { User } from './entities/user.entity';
-import { CreateUserInput } from './dto/create-user.input';
-import { UpdateUserInput } from './dto/update-user.input';
+import { UsersService } from './providers/users.service';
+import { InternalServerErrorException, UseGuards } from '@nestjs/common';
+import { AuthCheckGuard } from 'src/auth/guards/auth-check.guard';
+import { UserListResponse } from './dtos/get-all-users-response.dto';
+import { SortInput } from 'src/common/dtos/sort-input.dto';
 
 @Resolver(() => User)
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
-  @Mutation(() => User)
-  createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
-    return this.usersService.create(createUserInput);
+  @UseGuards(AuthCheckGuard)
+  @Query(() => [User])
+  async getAllUsersWithoutPagination(
+    @Args('userRole', { type: () => Number, nullable: true })
+    userRole,
+  ) {
+    try {
+      return await this.usersService.findAll(userRole);
+    } catch (error) {
+      throw new InternalServerErrorException('Error: ', error.message);
+    }
   }
 
-  @Query(() => [User], { name: 'users' })
-  findAll() {
-    return this.usersService.findAll();
+  @UseGuards(AuthCheckGuard)
+  @Query(() => UserListResponse)
+  async getAllUsers(
+    @Args('userRole', { type: () => Number, nullable: true })
+    userRole,
+    @Args('page', { type: () => Int, nullable: true }) page = 1,
+    @Args('pageSize', { type: () => Int, nullable: true }) pageSize = 10,
+    @Args('filterBy', { type: () => String, nullable: true }) filterBy?: string,
+    @Args('filter', { type: () => String, nullable: true }) filter?: string,
+    @Args('sort', { type: () => SortInput, nullable: true })
+    sort?: {
+      field: string;
+      direction: 'ASC' | 'DESC';
+    },
+  ) {
+    try {
+      const [users, totalRecords] = await this.usersService.findAllWithRelations({
+        userRole,
+        page,
+        pageSize,
+        filterBy,
+        filter,
+        sort,
+      });
+
+      return { users, totalRecords };
+    } catch (error) {
+      throw new InternalServerErrorException('Error: ', error.message);
+    }
   }
 
-  @Query(() => User, { name: 'user' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.usersService.findOne(id);
-  }
-
-  @Mutation(() => User)
-  updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
-    return this.usersService.update(updateUserInput.id, updateUserInput);
-  }
-
-  @Mutation(() => User)
-  removeUser(@Args('id', { type: () => Int }) id: number) {
-    return this.usersService.remove(id);
+  @UseGuards(AuthCheckGuard)
+  @Query(() => User)
+  async getUserById(@Args('userId') userId: number) {
+    try {
+      return this.usersService.findOneWithRelations(userId, [
+        'steps',
+        'userRoleSecurityGroup.role',
+        'userRoleSecurityGroup.securityGroup',
+      ]);
+    } catch (error) {
+      throw new InternalServerErrorException('Error: ', error.message);
+    }
   }
 }

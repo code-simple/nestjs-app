@@ -9,6 +9,7 @@ import { validateEnvVariables } from './config/env.validation';
 import { UsersModule } from './users/users.module';
 import { join } from 'path';
 import { CustomNumberIdScalar } from './common/scalars/custom-number-id.scalar';
+import { OtpModule } from './otp/otp.module';
 
 const ENV = process.env.NODE_ENV;
 
@@ -45,6 +46,7 @@ const ENV = process.env.NODE_ENV;
       resolvers: { CustomID: CustomNumberIdScalar },
     }),
     UsersModule,
+    OtpModule,
   ], // Proper end of imports array
   controllers: [],
   providers: [], // Add your scalar here
