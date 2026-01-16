@@ -1,5 +1,4 @@
 import { IsBoolean, IsEmail, IsString, IsStrongPassword } from 'class-validator';
-import { GenderTypes } from 'src/scheduling/types/common';
 
 export class CreateUserDto {
   @IsEmail({}, { message: 'Email is required' })
@@ -25,5 +24,5 @@ export class CreateUserDto {
   profileImage?: string;
 
   @IsString({ message: 'Gender must be a string' })
-  gender?: GenderTypes;
+  gender?: 'maile' | 'female' | 'other';
 }

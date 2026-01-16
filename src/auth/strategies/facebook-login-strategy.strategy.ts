@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, Profile } from 'passport-facebook';
 import { OtpService } from 'src/otp/providers/otp.service';
-import { UsersOnboardingStepsService } from 'src/users-onboarding-steps/providers/users-onboarding-steps.service';
-import { StepNames } from 'src/users-onboarding-steps/types/step.types';
 import { UsersService } from 'src/users/providers/users.service';
 
 @Injectable()
@@ -11,7 +9,6 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
   constructor(
     private readonly usersService: UsersService,
     private readonly otpService: OtpService,
-    private readonly usersOnboardingStepsService: UsersOnboardingStepsService,
   ) {
     super({
       clientID: process.env.FACEBOOK_APP_ID,
@@ -50,18 +47,6 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
           isEmailVerified: true,
           otpSecret,
         });
-
-        /**
-         * Onboarding step creation
-         */
-        await this.usersOnboardingStepsService.createOnboardingStep(
-          user.id,
-          StepNames.registration,
-        );
-        await this.usersOnboardingStepsService.createOnboardingStep(
-          user.id,
-          StepNames.email_verification,
-        );
       }
 
       return done(null, user);

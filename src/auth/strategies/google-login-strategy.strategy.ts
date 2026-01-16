@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { OtpService } from 'src/otp/providers/otp.service';
-import { UsersOnboardingStepsService } from 'src/users-onboarding-steps/providers/users-onboarding-steps.service';
-import { StepNames } from 'src/users-onboarding-steps/types/step.types';
 import { UsersService } from 'src/users/providers/users.service';
 
 @Injectable()
@@ -11,7 +9,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(
     private readonly usersService: UsersService,
     private readonly otpService: OtpService,
-    private readonly usersOnboardingStepsService: UsersOnboardingStepsService,
   ) {
     super({
       clientID: process.env.GOOGLE_CLIENT_ID,
@@ -44,18 +41,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
           isEmailVerified: true,
           otpSecret,
         });
-
-        /**
-         * Onboarding step creation
-         */
-        await this.usersOnboardingStepsService.createOnboardingStep(
-          user.id,
-          StepNames.registration,
-        );
-        await this.usersOnboardingStepsService.createOnboardingStep(
-          user.id,
-          StepNames.email_verification,
-        );
       }
 
       return done(null, user);

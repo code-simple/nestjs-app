@@ -30,8 +30,7 @@ export class AuthService {
       },
     };
 
-    const expiresIn =
-      Math.floor(Date.now()) + (this.configuration.jwt.access.expiry * 1000);
+    const expiresIn = Math.floor(Date.now()) + this.configuration.jwt.access.expiry * 1000;
 
     return {
       user,
@@ -44,14 +43,10 @@ export class AuthService {
   }
 
   async validateUser(dto: LoginInputDto) {
-    const user = await this.userService.findOneByEmailWithRelations(dto.email, [
-      'steps',
-      'userRoleSecurityGroup.role',
-      'userRoleSecurityGroup.securityGroup'
-    ]);
+    const user = await this.userService.findOneByEmailWithRelations(dto.email, []);
 
     if (!user.password) {
-      throw new Error("Please register with your email!")
+      throw new Error('Please register with your email!');
     }
 
     if (user && (await compare(dto.password, user.password))) {
@@ -79,10 +74,7 @@ export class AuthService {
     await this.userService.update(userId, { isEmailVerified: true });
   }
 
-  async generateToken(
-    payload: Record<string, any>,
-    tokenType: TokenType,
-  ): Promise<string> {
+  async generateToken(payload: Record<string, any>, tokenType: TokenType): Promise<string> {
     const expiry =
       tokenType === TokenType.ACCESS
         ? this.configuration.jwt.access.expiry

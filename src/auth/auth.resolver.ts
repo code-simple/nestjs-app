@@ -17,8 +17,6 @@ import { MessageResponseDto } from '../common/dtos/message-response.dto';
 import messages from 'src/utils/messages';
 import { EmailSenderService } from 'src/email/providers/email-sender.service';
 import { OtpService } from 'src/otp/providers/otp.service';
-import { UsersOnboardingStepsService } from 'src/users-onboarding-steps/providers/users-onboarding-steps.service';
-import { StepNames } from 'src/users-onboarding-steps/types/step.types';
 import { AuthCheckGuard } from './guards/auth-check.guard';
 import { VerifyEmailInputDto } from './dtos/verify-email-input.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -33,7 +31,6 @@ export class AuthResolver {
     private readonly authService: AuthService,
     private readonly emailSenderService: EmailSenderService,
     private readonly otpService: OtpService,
-    private readonly usersOnboardingStepsService: UsersOnboardingStepsService,
     private jwtService: JwtService,
   ) {}
 
@@ -71,11 +68,6 @@ export class AuthResolver {
         createdUser.email,
         createdUser.name,
         emailVerificationOtp,
-      );
-
-      await this.usersOnboardingStepsService.createOnboardingStep(
-        createdUser.id,
-        StepNames.registration,
       );
 
       return { message: messages.VERIFY_YOUR_EMAIL };
@@ -133,10 +125,6 @@ export class AuthResolver {
       /**
        * Onboarding step creation
        */
-      await this.usersOnboardingStepsService.createOnboardingStep(
-        user.id,
-        StepNames.email_verification,
-      );
 
       return { message: messages.EMAIL_VERIFICATION_SUCCESSFULL };
     } catch (error) {

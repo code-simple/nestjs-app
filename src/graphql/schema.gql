@@ -1,0 +1,117 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""A custom scalar to handle numeric IDs as integers"""
+scalar CustomID
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+enum EmailTypesEnum {
+  RSVP_REMINDER_1_DAY_BEFORE
+  RSVP_REMINDER_3_DAY_BEFORE
+  RSVP_REMINDER_5_DAY_BEFORE
+}
+
+input LoginInputDto {
+  email: String!
+  password: String!
+}
+
+type LoginResponseDto {
+  authTokens: RefreshTokenResponseDto!
+  user: User!
+}
+
+type MessageResponseDto {
+  message: String!
+}
+
+type Mutation {
+  login(input: LoginInputDto!): LoginResponseDto!
+  refreshToken: RefreshTokenResponseDto!
+
+  """
+  Registers a new user. 
+  If a user with the provided email already exists and is not a ghost user, registration fails with a conflict error.
+  If a ghost user with the email exists, their information is updated and they are converted to a regular user.
+  Sends a verification email and creates onboarding steps for the user.
+  """
+  register(input: RegisterInputDto!): MessageResponseDto!
+  resetPassword(newPassword: String!): MessageResponseDto!
+  sendForgotPasswordEmail(email: String!): MessageResponseDto!
+  updateEmailTemplateOfOrganizer(input: UpdateEmailTemplateInput!): UserEmailTemplate!
+  verifyEmail(input: VerifyEmailInputDto!): MessageResponseDto!
+  verifyOtp(email: String!, otp: String!): OtpVerifyResponseDto!
+}
+
+type OtpVerifyResponseDto {
+  message: String!
+  token: String!
+}
+
+type Query {
+  emailTemplatesByUserId: [UserEmailTemplate!]!
+  getAllUsers(filter: String, filterBy: String, page: Int, pageSize: Int, sort: SortInput, userRole: Float): UserListResponse!
+  getAllUsersWithoutPagination(userRole: Float): [User!]!
+  getUserById(userId: Float!): User!
+}
+
+type RefreshTokenResponseDto {
+  accessToken: String!
+  expiresIn: Float!
+  refreshToken: String!
+}
+
+input RegisterInputDto {
+  email: String!
+  name: String!
+  password: String!
+}
+
+input SortInput {
+  direction: String!
+  field: String!
+}
+
+input UpdateEmailTemplateInput {
+  emailHtml: String
+  emailTemplateId: Float!
+  subject: String
+}
+
+type User {
+  created_at: DateTime!
+  email: String!
+  id: CustomID!
+  isEmailVerified: Boolean!
+  isGhostUser: Boolean!
+  name: String!
+  otpSecret: String!
+  phoneNumber: String
+  profileImage: String
+  updated_at: DateTime!
+}
+
+type UserEmailTemplate {
+  created_at: DateTime!
+  emailHtml: String!
+  emailType: EmailTypesEnum!
+  id: CustomID!
+  subject: String!
+  updated_at: DateTime!
+  user: User!
+}
+
+type UserListResponse {
+  totalRecords: Int!
+  users: [User!]!
+}
+
+input VerifyEmailInputDto {
+  email: String!
+  otp: String!
+}

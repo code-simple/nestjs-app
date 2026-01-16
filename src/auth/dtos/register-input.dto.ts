@@ -1,11 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import {
-  IsEmail,
-  IsNumber,
-  IsOptional,
-  IsString,
-  IsStrongPassword,
-} from 'class-validator';
+import { IsEmail, IsNumber, IsOptional, IsString, IsStrongPassword } from 'class-validator';
 
 @InputType()
 export class RegisterInputDto {
@@ -31,9 +25,4 @@ export class RegisterInputDto {
     },
   )
   password: string;
-
-  @Field(() => Int, { nullable: true })
-  @IsOptional()
-  @IsNumber()
-  clubId?: string;
 }

@@ -8,7 +8,6 @@ import messages from 'src/utils/messages';
 import { OtpService } from 'src/otp/providers/otp.service';
 import { generateRandomSuffix } from 'src/utils/helper';
 import { UserEmailTemplateService } from 'src/user-email-template-management/providers/user-email-template.service';
-import { organizerDefaultEmailTemplates } from 'src/utils/helper';
 import { PredefinedSystemRoles } from 'src/common/types/global';
 
 @Injectable()
@@ -200,22 +199,5 @@ export class UsersService {
     });
 
     return this.userRepository.save(newUser);
-  }
-
-  async addEmailTemplatesByUserId(userId: number): Promise<User | null> {
-    const user = await this.findOne(userId);
-    if (!user) {
-      throw new InternalServerErrorException(messages.USER_NOT_FOUND);
-    }
-    // Create email templates for the user
-    for (const template of organizerDefaultEmailTemplates) {
-      await this.userEmailTemplateService.create({
-        user,
-        emailType: template.emailType!,
-        subject: template.subject!,
-        emailHtml: template.emailHtml!,
-      });
-    }
-    return user;
   }
 }

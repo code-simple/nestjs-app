@@ -6,9 +6,15 @@ import { User } from './entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { EmailModule } from 'src/email/email.module';
 import { OtpModule } from 'src/otp/otp.module';
+import { UserEmailTemplateManagementModule } from 'src/user-email-template-management/user-email-template-management.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), EmailModule],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    EmailModule,
+    UserEmailTemplateManagementModule,
+    OtpModule,
+  ],
   providers: [UsersResolver, UsersService, JwtService],
   exports: [UsersService],
 })

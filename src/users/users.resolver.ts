@@ -58,11 +58,7 @@ export class UsersResolver {
   @Query(() => User)
   async getUserById(@Args('userId') userId: number) {
     try {
-      return this.usersService.findOneWithRelations(userId, [
-        'steps',
-        'userRoleSecurityGroup.role',
-        'userRoleSecurityGroup.securityGroup',
-      ]);
+      return this.usersService.findOneWithRelations(userId, []);
     } catch (error) {
       throw new InternalServerErrorException('Error: ', error.message);
     }
